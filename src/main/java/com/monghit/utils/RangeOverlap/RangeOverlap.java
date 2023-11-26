@@ -12,17 +12,40 @@ import com.monghit.utils.cidrutils.*;
 
 
 
-
+/**
+*
+* @author monghit
+*/
 public class RangeOverlap {
 
 	private ArrayList<String> ipsRanges;
 
-
+    /**
+     * This constructor is used to set an array of ips or CIDRs.
+     * @param cidr is arrayList<String> of network CIDR or ips
+     * @return String This return the BroadcastAddress
+     * @throws IllegalArgumentException("not an valid CIDR format!")
+     */
 	public RangeOverlap(ArrayList<String> ipsRange) {
 		super();
 		this.ipsRanges = ipsRange;
 	}
 
+    /**
+     * This method is used to evaluate if the lists of CIDRs or String are overlapping.
+     * @return Boolean is overlapping ips
+     */
+	public Boolean isOverlap() {
+		ArrayList<String> copyIpsRange = new ArrayList<String>(ipsRanges);
+		Predicate<String> isOverLappingIps = ip -> ipInRange(ip,deleteIpFromRange(ip,copyIpsRange));
+		return this.ipsRanges.stream().anyMatch(isOverLappingIps);
+	}
+
+     /**
+     * This method is used to add an cidr/ip to the ArrayList of cidrs/Ips 
+     * @param String cidr/ip
+     * @return Boolean true if the new cidr/ip can add -> there is not overlapping with others cidrs/ips.
+     */
 	public boolean add(String ip) {
 		if(!this.ipsRanges.contains(ip)) {
 			this.ipsRanges.add(ip);
@@ -34,6 +57,11 @@ public class RangeOverlap {
 		return true;
 	}
 	
+     /**
+     * This method is used to add a List<String> of cidr/ip to the ArrayList of cidrs/Ips 
+     * @param List<String> of cidr/ip
+     * @return Boolean true if none of the new cidr/ip can add -> there is not overlapping with others cidrs/ips.
+     */
 	public boolean add(List<String> ipsRange) {
 		if(!hasCommonElements(ipsRange)) {
 			this.ipsRanges.addAll(ipsRange);
@@ -44,7 +72,11 @@ public class RangeOverlap {
 		}
 		return true;
 	}
-	
+
+	 /**
+     * This method is used to return an  ArrayList<String> of all cidr or ips.
+     * @return ArrayList<String> -> there is not overlapping with others cidrs/ips.
+     */
 	public ArrayList<String> getRanges(){
 		return this.ipsRanges;
 	}
@@ -58,15 +90,7 @@ public class RangeOverlap {
 		return !findCommonElements(ipsRanges,ipsRange).isEmpty();
 	}
 	
-	public Boolean isOverlap() {
-		ArrayList<String> copyIpsRange = new ArrayList<String>(ipsRanges);
-		
-		Predicate<String> isOverLappingIps = ip -> ipInRange(ip,deleteIpFromRange(ip,copyIpsRange));
-		
-		return this.ipsRanges.stream().anyMatch(isOverLappingIps);
-				
 
-	}
 
 	private static ArrayList<String> deleteIpFromRange(String ip,ArrayList<String> ipRanges ) {
 		ipRanges.remove(ip);
